@@ -13,17 +13,17 @@ func Server() {
 	if err != nil {
             fmt.Println(err)
             return
-    }
+        }
 
 	for true {
 		
-        client, err := listener.Accept()
+                client, err := listener.Accept()
 
-        if err != nil {
-                fmt.Println(err)
-                return
-        }
+                if err != nil {
+                        fmt.Println(err)
+                        return
+                }
 
-        fmt.Println("Connected to client: ", client.RemoteAddr())
+                fmt.Println("Connected to client: ", client.RemoteAddr())
 	}
 }
