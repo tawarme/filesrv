@@ -25,5 +25,8 @@ func Server() {
                 }
 
                 fmt.Println("Connected to client: ", client.RemoteAddr())
+
+                go ClientHandler(client)
+
 	}
 }
