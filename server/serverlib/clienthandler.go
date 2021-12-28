@@ -6,7 +6,7 @@ import (
         "net"
         "github.com/nu7hatch/gouuid"
         "encoding/binary"
-        "os"]
+        "os"
 )
 
 
@@ -55,10 +55,10 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
                         name_length := buf[4]
                         file_name := string(buf[5:5+name_length])
 
-                        content_length_offset = 5+name_length+1
+                        content_length_offset := 5+name_length+1
                         content_length := buf[content_length_offset:content_length_offset + 4]
 
-                        content = buf[content_length_offset + 4 +1:]
+                        content := buf[content_length_offset + 4 +1:]
 
 
                         fmt.Println("Client", client.RemoteAddr(), ", putting file: ", file_name, "size: ", content_length)
@@ -73,14 +73,14 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
 
                         defer f.Close()
 
-                        _, err := f.Write(content)
+                        _, err = f.Write(content)
 
                         if err != nil {
                                 fmt.Println(err)
                                 return
                         }
 
-                        f.sync()
+                        f.Sync()
 
                         break
                 case "GET":
