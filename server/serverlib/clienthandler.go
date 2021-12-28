@@ -45,7 +45,42 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
                         fmt.Println("Client", client.RemoteAddr(), ", subbing to: ", channel)
                         break
                 case "PUT":
-                        fmt.Println("Client", client.RemoteAddr(), ", putting file: ")
+                        // PUT X AAAAAA YYYY BBBBBBBBBBBBBB
+                        // name_length is 1 byte unsigned int (X)
+                        // name is as many bytes as name_length (AAAAAA)
+                        // content_length is 4 bytes (YYYY)
+                        // content is as many bytes as content_length (BBBBBBBBBBBBBB)
+
+                        name_length := buf[4]
+                        file_name := string(buf[5:5+name_length])
+
+                        content_length_offset = 5+name_length+1
+                        content_length := buf[content_length_offset:content_length_offset + 4]
+
+                        content = buf[content_length_offset + 4 +1:]
+
+
+                        fmt.Println("Client", client.RemoteAddr(), ", putting file: ", file_name, "size: ", content_length)
+
+
+                        f, err := os.Create(file_name)
+                        
+                        if err != nil {
+                                fmt.Println(err)
+                                return
+                        }
+
+                        defer f.Close()
+
+                        _, err := f.Write(content)
+
+                        if err != nil {
+                                fmt.Println(err)
+                                return
+                        }
+
+                        f.sync()
+
                         break
                 case "GET":
                         fmt.Println("Client", client.RemoteAddr(), ", getting file: ")
