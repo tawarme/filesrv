@@ -8,6 +8,8 @@ import (
 
 
 func Server() {
+        clients_subscriptions := make(map[string]uint32)
+
 	listener, err := net.Listen("tcp", "0.0.0.0:5000")
 
 	if err != nil {
@@ -26,7 +28,7 @@ func Server() {
 
                 fmt.Println("Connected to client: ", client.RemoteAddr())
 
-                go ClientHandler(client)
+                go ClientHandler(clients_subscriptions, client)
 
 	}
 }
