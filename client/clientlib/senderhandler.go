@@ -50,7 +50,7 @@ func SenderHandler(server net.Conn, channel int, file_path string) {
 					  	  []byte(" "))
 
 	data := make([]byte, 1024-(len(headers)+1))
-	count, err := f.Read(data)
+	_, err = f.Read(data)
 
 	if err != nil {
 		fmt.Println(err)
@@ -62,4 +62,22 @@ func SenderHandler(server net.Conn, channel int, file_path string) {
 					  []byte(" "))
 
 	server.Write(buf)
+
+	transmitted_so_far := 1024-(len(headers)+1)
+	for transmitted_so_far < int(file_length) {
+		data := make([]byte, 1024)
+		count, err := f.Read(data)
+
+		if err != nil {
+			fmt.Println(err)
+			return 
+		}
+
+		server.Write(buf)
+
+		transmitted_so_far += count
+	}
+	server.Close()
+
+	fmt.Println("Finished sending file.")
 }
