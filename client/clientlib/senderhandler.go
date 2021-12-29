@@ -73,7 +73,7 @@ func SenderHandler(server net.Conn, channel int, file_path string) {
 			return 
 		}
 
-		server.Write(buf)
+		server.Write(data)
 
 		transmitted_so_far += count
 	}
