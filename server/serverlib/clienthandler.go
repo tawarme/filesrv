@@ -57,16 +57,16 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
 
                         channel := binary.BigEndian.Uint32(buf[4:8])
 
-                        name_length := buf[9]
+                        name_length := int(buf[9])
 
                         file_name := string(buf[11:11+name_length])
 
                         content_length_offset := 11+name_length+1
-                        content_length := binary.BigEndian.Uint32(buf[content_length_offset:content_length_offset + 4])
+                        content_length := int(binary.BigEndian.Uint32(buf[content_length_offset:content_length_offset + 4]))
 
                         content_offset := content_length_offset+4 +1
-
-                        content := buf[content_offset:]
+                        
+                        content := buf[content_offset:content_offset+content_length]
 
                         fmt.Println("Client", client.RemoteAddr(), "to channel", channel, "putting file: ", file_name, "size: ", content_length)
 
