@@ -66,10 +66,19 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
 
                         content_offset := content_length_offset+4 +1
                         
-                        content := buf[content_offset:content_offset+content_length]
-
                         fmt.Println("Client", client.RemoteAddr(), "to channel", channel, "putting file: ", file_name, "size: ", content_length)
 
+                        headers_length := 3+1+ 4+1+ 1+1+ name_length+1+ 4+1
+
+                        var content_segment int
+                        if content_length >= 1024 - headers_length {
+                                content_segment = 1024 - headers_length
+                        } else {
+                                content_segment = content_length
+                        }
+
+
+                        content := buf[content_offset:content_offset+content_segment]
 
                         f, err := os.Create(file_name)
                         
@@ -89,6 +98,35 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
 
                         f.Sync()
 
+                        received_so_far := content_segment
+
+                        for received_so_far < content_length {
+                                data := make([]byte, 1024)
+
+                                count, err := client.Read(data)
+
+                                if err != nil { 
+                                        fmt.Println(err)
+                                        return
+                                }
+
+                                if content_length < (received_so_far + count) {
+                                        _, err = f.Write(data[:content_length-received_so_far])
+                                } else {
+                                        _, err = f.Write(data)
+                                }
+
+                                if err != nil {
+                                        fmt.Println(err)
+                                        return
+                                }
+                                
+                                f.Sync() 
+
+                                received_so_far += count
+                        }
+                        client.Close()
+                        return
                         break
                 case "GET":
                         fmt.Println("Client", client.RemoteAddr(), ", getting file: ")
