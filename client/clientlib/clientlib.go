@@ -15,5 +15,16 @@ func Client(server_add string, mode string, channel int, file_path string) {
 		return 
 	}
 
-	fmt.Println("Connected to server", server)
+	fmt.Println("Connected to server")
+
+	switch mode {
+	case "send":
+		SenderHandler(server, channel, file_path)
+		break
+	case "receive":
+		//ReceiverHandler()
+	default:
+		/* code */
+		return
+	}
 }
