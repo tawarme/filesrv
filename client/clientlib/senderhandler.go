@@ -2,7 +2,7 @@ package clientlib
 
 import (
 	"fmt"
-	//"os"
+	"os"
 	"net"
 	"path/filepath"
 	"encoding/binary"
@@ -24,18 +24,41 @@ func SenderHandler(server net.Conn, channel int, file_path string) {
 	name_length := make([]byte, 1)
 	name_length[0] = uint8(len(file_name))
 
-	// dummy vals
+	f, err := os.Open(file_path)
+
+	if err != nil {
+		fmt.Println(err)
+		return 
+	}
+
+	file_stats, err := f.Stat()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	file_length := file_stats.Size()
+
 	content_length := make([]byte, 4)
-	binary.BigEndian.PutUint32(content_length, uint32(5))
+	binary.BigEndian.PutUint32(content_length, uint32(file_length))
 
-	content := "AEIOU"
-
-	buf := bytes.Join([][]byte{ []byte("PUT"), 
+	headers := bytes.Join([][]byte{ []byte("PUT"), 
 								channel_enc,
 								name_length, 
 								[]byte(file_name), 
-								content_length,
-								[]byte(content) },
+								content_length },
+					  	  []byte(" "))
+
+	data := make([]byte, 1024-(len(headers)+1))
+	count, err := f.Read(data)
+
+	if err != nil {
+		fmt.Println(err)
+		return 
+	}
+
+	buf := bytes.Join([][]byte{ headers,
+								data },
 					  []byte(" "))
 
 	server.Write(buf)
