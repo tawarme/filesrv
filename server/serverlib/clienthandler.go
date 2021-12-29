@@ -46,22 +46,29 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
                         fmt.Println("Client", client.RemoteAddr(), ", subbing to: ", channel)
                         break
                 case "PUT":
-                        // PUT X AAAAAA YYYY BBBBBBBBBBBBBB
+                        // 0         1         2
+                        // 012345678901234567890123456789
+                        // PUT ZZZZ X AAAAAA YYYY BBBBBBBBBBBBBB
+                        // channel is 4 byte unsigned int(ZZZZZ)
                         // name_length is 1 byte unsigned int (X)
                         // name is as many bytes as name_length (AAAAAA)
                         // content_length is 4 bytes (YYYY)
                         // content is as many bytes as content_length (BBBBBBBBBBBBBB)
 
-                        name_length := buf[4]
-                        file_name := string(buf[5:5+name_length])
+                        channel := binary.BigEndian.Uint32(buf[4:8])
 
-                        content_length_offset := 5+name_length+1
-                        content_length := buf[content_length_offset:content_length_offset + 4]
+                        name_length := buf[9]
 
-                        content := buf[content_length_offset + 4 +1:]
+                        file_name := string(buf[11:11+name_length])
 
+                        content_length_offset := 11+name_length+1
+                        content_length := binary.BigEndian.Uint32(buf[content_length_offset:content_length_offset + 4])
 
-                        fmt.Println("Client", client.RemoteAddr(), ", putting file: ", file_name, "size: ", content_length)
+                        content_offset := content_length_offset+4 +1
+
+                        content := buf[content_offset:]
+
+                        fmt.Println("Client", client.RemoteAddr(), "to channel", channel, "putting file: ", file_name, "size: ", content_length)
 
 
                         f, err := os.Create(file_name)
