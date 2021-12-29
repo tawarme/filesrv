@@ -35,8 +35,7 @@ func SenderHandler(server net.Conn, channel int, file_path string) {
 								name_length, 
 								[]byte(file_name), 
 								content_length,
-								[]byte(content)
-							   },
+								[]byte(content) },
 					  []byte(" "))
 
 	server.Write(buf)
