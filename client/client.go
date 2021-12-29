@@ -31,6 +31,7 @@ func main() {
 		break
 	default:
 		fmt.Println("Invalid mode:", mode)
+		fmt.Println("Valid modes: send receive")
 		return
 	}
 
