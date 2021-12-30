@@ -22,7 +22,7 @@ func Client(server_add string, mode string, channel int, file_path string) {
 		SenderHandler(server, channel, file_path)
 		break
 	case "receive":
-		//ReceiverHandler()
+		ReceiverHandler(server, channel)
 	default:
 		/* code */
 		return
