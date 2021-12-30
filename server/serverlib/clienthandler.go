@@ -6,6 +6,7 @@ import (
         "net"
         "encoding/binary"
         "os"
+        "bytes"
 )
 
 
@@ -120,7 +121,10 @@ func ClientHandler(clients_subscriptions map[uint32][]net.Conn, client net.Conn,
                         client.Close()
 
                         for _, client := range clients_subscriptions[channel] {
-                                go FileSenderHandler(clients_subscriptions[channel], client)
+                                client_headers := bytes.Join([][]byte{ []byte("PUT"), 
+                                                                        buf[9:content_offset-1]},
+                                                            []byte(" "))
+                                go FileSenderHandler(clients_subscriptions[channel], client, client_headers, file_name)
                         }
 
                         return
