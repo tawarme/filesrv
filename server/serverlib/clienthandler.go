@@ -4,26 +4,16 @@ package serverlib
 import (
         "fmt"
         "net"
-        "github.com/nu7hatch/gouuid"
         "encoding/binary"
         "os"
 )
 
 
-func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
+func ClientHandler(clients_subscriptions map[uint32][]net.Conn, client net.Conn,) {
         for true {
-                u, err := uuid.NewV4()
-                
-                if err != nil { 
-                        fmt.Println(err)
-                        return
-                }             
-
-                id := u.String()
-                clients_subscriptions[id] = 0
 
                 buf := make([]byte, 1024)
-                _, err = client.Read(buf)
+                _, err := client.Read(buf)
 
                 if err != nil { 
                         fmt.Println(err)
@@ -41,9 +31,11 @@ func ClientHandler(clients_subscriptions map[string]uint32, client net.Conn,) {
                         // channel is 4 bytes unsigned int(XXXX)"
 
                         channel := binary.BigEndian.Uint32(buf[4:8])
-                        clients_subscriptions[id] = channel
+                        clients_subscriptions[channel] = append(clients_subscriptions[channel], client)
 
                         fmt.Println("Client", client.RemoteAddr(), ", subbing to: ", channel)
+                        // We will only send, not receive info
+                        return
                         break
                 case "PUT":
                         // 0         1         2

@@ -8,7 +8,7 @@ import (
 
 
 func Server() {
-        clients_subscriptions := make(map[string]uint32)
+        clients_subscriptions := make(map[uint32][]net.Conn)
 
 	listener, err := net.Listen("tcp", "0.0.0.0:5000")
 
