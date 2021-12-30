@@ -118,6 +118,11 @@ func ClientHandler(clients_subscriptions map[uint32][]net.Conn, client net.Conn,
                                 received_so_far += count
                         }
                         client.Close()
+
+                        for _, client := range clients_subscriptions[channel] {
+                                go FileSenderHandler(clients_subscriptions[channel], client)
+                        }
+
                         return
                         break
                 case "GET":
