@@ -92,21 +92,20 @@ func ClientHandler(clients_subscriptions map[uint32][]net.Conn, client net.Conn,
                         f.Sync()
 
                         received_so_far := content_segment
-
                         for received_so_far < content_length {
                                 data := make([]byte, 1024)
 
-                                count, err := client.Read(data)
+                                received_count, err := client.Read(data)
 
                                 if err != nil { 
                                         fmt.Println(err)
                                         return
                                 }
 
-                                if content_length < (received_so_far + count) {
+                                if content_length < (received_so_far + received_count) {
                                         _, err = f.Write(data[:content_length-received_so_far])
                                 } else {
-                                        _, err = f.Write(data)
+                                        _, err = f.Write(data[:received_count])
                                 }
 
                                 if err != nil {
@@ -116,7 +115,7 @@ func ClientHandler(clients_subscriptions map[uint32][]net.Conn, client net.Conn,
                                 
                                 f.Sync() 
 
-                                received_so_far += count
+                                received_so_far += received_count
                         }
                         client.Close()
 

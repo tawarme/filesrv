@@ -85,17 +85,18 @@ func ReceiverHandler(server net.Conn, channel int) {
     for received_so_far < content_length {
             data := make([]byte, 1024)
 
-            count, err := server.Read(data)
+            received_count, err := server.Read(data)
 
             if err != nil { 
                     fmt.Println(err)
                     return
             }
 
-            if content_length < (received_so_far + count) {
+            if content_length < (received_so_far + received_count) {
                     _, err = f.Write(data[:content_length-received_so_far])
+
             } else {
-                    _, err = f.Write(data)
+                    _, err = f.Write(data[:received_count])
             }
 
             if err != nil {
@@ -104,9 +105,8 @@ func ReceiverHandler(server net.Conn, channel int) {
             }
             
             f.Sync()
-            stats, _ := f.Stat()
 
-            received_so_far += count
+            received_so_far += received_count
     }
     f.Sync()
     server.Close()
