@@ -10,7 +10,6 @@ import (
 
 
 func FileSenderHandler(clients_list []net.Conn, client net.Conn, headers []byte, file_name string) {
-    fmt.Println("Sending to client", client.RemoteAddr())
 	
 	f, err := os.Open(file_name)
 
@@ -40,7 +39,13 @@ func FileSenderHandler(clients_list []net.Conn, client net.Conn, headers []byte,
 								data },
 					  []byte(" "))
 
-	client.Write(buf)
+	_, err = client.Write(buf)
+
+	if err != nil {
+		//fmt.Println(err)
+		return
+	}
+    fmt.Println("Sending to client", client.RemoteAddr())
 
 	transmitted_so_far := 1024-(len(headers)+1)
 	for transmitted_so_far < int(file_length) {
@@ -58,6 +63,6 @@ func FileSenderHandler(clients_list []net.Conn, client net.Conn, headers []byte,
 	}
 	client.Close()
 
-	fmt.Println("Finished sending file.")
+	fmt.Println("Finished sending file to", client.RemoteAddr())
 
 }
